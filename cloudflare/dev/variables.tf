@@ -22,8 +22,8 @@ variable "cloudfront_domain" {
   default     = "de7bsautsq6ez.cloudfront.net"
 }
 
-variable "smart_locker_backend_domain" {
-  description = "Backend domain for dev-smart-locker"
+variable "ec2_ip" {
+  description = "EC2 instance IP for API"
   type        = string
-  default     = "xxx.bbb.com"
+  default     = "56.68.99.55"
 }
