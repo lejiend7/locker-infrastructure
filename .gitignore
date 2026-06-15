@@ -1,3 +1,4 @@
+# Terraform
 *.tfstate
 *.tfstate.*
 .terraform/
@@ -6,3 +7,10 @@ crash.log
 override.tf
 terraform.tfvars
 .env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
