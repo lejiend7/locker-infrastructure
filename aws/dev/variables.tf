@@ -33,3 +33,15 @@ variable "website_domain" {
   type        = string
   default     = ""
 }
+
+variable "cloudfront_alias" {
+  description = "Alternate domain name for CloudFront"
+  type        = string
+  default     = "dev-smart-locker.lejiend7.com"
+}
+
+variable "cloudfront_certificate_arn" {
+  description = "ACM certificate ARN for CloudFront"
+  type        = string
+  default     = "arn:aws:acm:us-east-1:905846953702:certificate/d1d52c2f-e849-4783-9bc9-280519dcf2f6"
+}
