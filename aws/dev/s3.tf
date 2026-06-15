@@ -27,6 +27,11 @@ resource "aws_s3_bucket_versioning" "website" {
   }
 }
 
+# CloudFront Origin Access Identity
+resource "aws_cloudfront_origin_access_identity" "oai" {
+  comment = "OAI for ${var.app_name}-${var.environment}"
+}
+
 # S3 bucket policy - allow CloudFront to read
 resource "aws_s3_bucket_policy" "website" {
   bucket = aws_s3_bucket.website.id
@@ -38,18 +43,20 @@ resource "aws_s3_bucket_policy" "website" {
         Sid    = "AllowCloudFrontOAI"
         Effect = "Allow"
         Principal = {
-          AWS = aws_cloudfront_origin_access_identity.oai.iam_arn
+          Service = "cloudfront.amazonaws.com"
         }
         Action   = "s3:GetObject"
         Resource = "${aws_s3_bucket.website.arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = aws_cloudfront_distribution.website.arn
+          }
+        }
       }
     ]
   })
-}
 
-# CloudFront Origin Access Identity
-resource "aws_cloudfront_origin_access_identity" "oai" {
-  comment = "OAI for ${var.app_name}-${var.environment}"
+  depends_on = [aws_cloudfront_distribution.website]
 }
 
 # CloudFront distribution
