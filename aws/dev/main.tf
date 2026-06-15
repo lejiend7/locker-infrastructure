@@ -6,6 +6,12 @@ terraform {
       version = "~> 5.0"
     }
   }
+
+  backend "s3" {
+    bucket = "my-terraform-state-lejiend"
+    key    = "aws/dev/terraform.tfstate"
+    region = "ap-southeast-5"
+  }
 }
 
 provider "aws" {

@@ -1,46 +1,41 @@
-# Locker Infrastructure - Terraform
+# Cloudflare Infrastructure
 
-Multi-environment Terraform configuration for Locker infrastructure management.
+Manages DNS and HTTPS/SSL certificates for Locker project.
 
-## Directory Structure
-
-```
-locker-infrastructure/
-├── dev/              # Development environment
-├── staging/          # Staging environment (coming soon)
-├── production/       # Production environment (coming soon)
-└── .gitignore
-```
+## Features
+- **DNS Management**: Configure DNS records pointing to AWS CloudFront
+- **HTTPS/SSL**: Automatic SSL/TLS certificates via Cloudflare proxy
+- **DDoS Protection**: Built-in security from Cloudflare
 
 ## Setup
 
-1. Navigate to your environment:
-   ```bash
-   cd dev
-   ```
+```bash
+cd dev
+cp terraform.tfvars.example terraform.tfvars
+# Edit with your Cloudflare API token and zone ID
+terraform init && terraform apply
+```
 
-2. Copy example tfvars:
-   ```bash
-   cp terraform.tfvars.example terraform.tfvars
-   ```
+## Configuration
 
-3. Update `terraform.tfvars` with your Cloudflare credentials
+Edit `dev/terraform.tfvars`:
+- `cloudflare_api_token`: Your Cloudflare API token
+- `cloudflare_zone_id`: Your domain's zone ID
+- `domain`: Your domain name
 
-4. Initialize Terraform:
-   ```bash
-   terraform init
-   ```
+## Adding DNS Records
 
-5. Plan and apply:
-   ```bash
-   terraform plan
-   terraform apply
-   ```
+Edit `dev/dns.tf` and add records pointing to CloudFront:
 
-## Environments
+```hcl
+resource "cloudflare_record" "website" {
+  zone_id = var.cloudflare_zone_id
+  name    = "@"
+  value   = "d123abc.cloudfront.net"
+  type    = "CNAME"
+  ttl     = 3600
+  proxied = true  # Enable Cloudflare proxy for HTTPS
+}
+```
 
-- **dev**: Development environment for testing
-- **staging**: Staging environment (to be configured)
-- **production**: Production environment (to be configured)
-
-Each environment has its own isolated state and variables.
+See [Cloudflare Terraform Provider Docs](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs) for more record types.
