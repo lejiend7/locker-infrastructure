@@ -18,12 +18,18 @@ resource "aws_security_group" "app" {
   description = "Security group for EC2 app instances"
   vpc_id      = aws_vpc.main.id
 
-  # Only accept traffic from the internal ALB
   ingress {
     from_port       = 80
     to_port         = 80
     protocol        = "tcp"
     security_groups = [aws_security_group.alb.id]
+  }
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr]
   }
 
   egress {
