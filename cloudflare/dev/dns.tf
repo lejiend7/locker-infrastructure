@@ -3,8 +3,8 @@ resource "cloudflare_record" "dev_smart_locker_frontend" {
   name    = "dev-smart-locker"
   content = var.cloudfront_domain
   type    = "CNAME"
-  ttl     = 0
-  proxied = false
+  ttl     = 1
+  proxied = true
 }
 
 resource "cloudflare_record" "dev_api_smart_locker" {
@@ -12,6 +12,8 @@ resource "cloudflare_record" "dev_api_smart_locker" {
   name    = "dev-api-smart-locker"
   content = var.ec2_ip
   type    = "A"
-  ttl     = 0
-  proxied = false
+  ttl     = 1
+  proxied = true
 }
+
+
