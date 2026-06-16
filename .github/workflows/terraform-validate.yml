@@ -14,6 +14,7 @@ on:
     paths:
       - 'aws/dev/**'
       - 'cloudflare/dev/**'
+      - '.github/workflows/terraform-validate.yml'
 
 jobs:
   validate-aws:
