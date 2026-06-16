@@ -27,3 +27,9 @@ variable "ec2_ip" {
   type        = string
   default     = "56.68.99.55"
 }
+
+variable "vpn_ip" {
+  description = "VPN server IP"
+  type        = string
+  default     = ""
+}
