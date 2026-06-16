@@ -22,10 +22,10 @@ variable "cloudfront_domain" {
   default     = "de7bsautsq6ez.cloudfront.net"
 }
 
-variable "ec2_ip" {
-  description = "EC2 instance IP for API"
+variable "api_gateway_domain" {
+  description = "API Gateway regional domain name — copy from: cd aws/dev && terraform output api_gateway_regional_domain_name"
   type        = string
-  default     = "56.68.99.55"
+  default     = ""
 }
 
 variable "vpn_ip" {
