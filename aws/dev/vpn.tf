@@ -1,3 +1,23 @@
+data "aws_ami" "almalinux" {
+  most_recent = true
+  owners      = ["764336703387"] # AlmaLinux OS Foundation
+
+  filter {
+    name   = "name"
+    values = ["AlmaLinux OS 9*x86_64*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+}
+
 resource "aws_security_group" "vpn" {
   name        = "${var.app_name}-${var.environment}-vpn-sg"
   description = "Security group for Pritunl VPN"
@@ -64,8 +84,8 @@ resource "aws_iam_instance_profile" "vpn" {
 }
 
 resource "aws_instance" "vpn" {
-  ami                         = data.aws_ami.ubuntu.id
-  instance_type               = var.instance_type
+  ami                         = data.aws_ami.almalinux.id
+  instance_type               = var.vpn_instance_type
   subnet_id                   = aws_subnet.public[0].id
   vpc_security_group_ids      = [aws_security_group.vpn.id]
   iam_instance_profile        = aws_iam_instance_profile.vpn.name
@@ -73,8 +93,7 @@ resource "aws_instance" "vpn" {
 
   user_data = <<-EOF
     #!/bin/bash
-    apt-get update -y
-    apt-get install -y amazon-ssm-agent
+    dnf install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
     systemctl enable amazon-ssm-agent
     systemctl start amazon-ssm-agent
   EOF

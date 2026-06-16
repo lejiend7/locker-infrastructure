@@ -75,3 +75,9 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
+variable "vpn_instance_type" {
+  description = "EC2 instance type for VPN (Intel x86_64 required for Pritunl)"
+  type        = string
+  default     = "t3.micro"
+}
