@@ -47,6 +47,14 @@ resource "aws_instance" "app" {
   vpc_security_group_ids = [aws_security_group.app.id]
   iam_instance_profile   = aws_iam_instance_profile.app.name
 
+  user_data = <<-EOF
+    #!/bin/bash
+    apt-get update -y
+    apt-get install -y amazon-ssm-agent
+    systemctl enable amazon-ssm-agent
+    systemctl start amazon-ssm-agent
+  EOF
+
   tags = {
     Name        = "${var.app_name}-${var.environment}-${count.index + 1}"
     Environment = var.environment
@@ -72,6 +80,11 @@ resource "aws_iam_role" "app" {
   tags = {
     Environment = var.environment
   }
+}
+
+resource "aws_iam_role_policy_attachment" "app_ssm" {
+  role       = aws_iam_role.app.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 resource "aws_iam_instance_profile" "app" {
