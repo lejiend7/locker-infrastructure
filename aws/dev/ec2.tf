@@ -4,7 +4,7 @@ data "aws_ami" "ubuntu" {
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-arm64-server-*"]
   }
 
   filter {
@@ -14,28 +14,16 @@ data "aws_ami" "ubuntu" {
 }
 
 resource "aws_security_group" "app" {
-  name        = "${var.app_name}-${var.environment}-sg"
-  description = "Security group for ${var.app_name} ${var.environment}"
+  name        = "${var.app_name}-${var.environment}-ec2-sg"
+  description = "Security group for EC2 app instances"
+  vpc_id      = aws_vpc.main.id
 
+  # Only accept traffic from the internal ALB
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Restrict in production
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
   }
 
   egress {
@@ -46,17 +34,18 @@ resource "aws_security_group" "app" {
   }
 
   tags = {
-    Name        = "${var.app_name}-${var.environment}-sg"
+    Name        = "${var.app_name}-${var.environment}-ec2-sg"
     Environment = var.environment
   }
 }
 
 resource "aws_instance" "app" {
-  count                = var.instance_count
-  ami                  = data.aws_ami.ubuntu.id
-  instance_type        = var.instance_type
-  security_groups      = [aws_security_group.app.name]
-  iam_instance_profile = aws_iam_instance_profile.app.name
+  count                  = var.instance_count
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = var.instance_type
+  subnet_id              = aws_subnet.private[count.index % 2].id
+  vpc_security_group_ids = [aws_security_group.app.id]
+  iam_instance_profile   = aws_iam_instance_profile.app.name
 
   tags = {
     Name        = "${var.app_name}-${var.environment}-${count.index + 1}"
@@ -88,4 +77,12 @@ resource "aws_iam_role" "app" {
 resource "aws_iam_instance_profile" "app" {
   name = "${var.app_name}-${var.environment}-profile"
   role = aws_iam_role.app.name
+}
+
+# Register EC2 instances into the ALB target group
+resource "aws_lb_target_group_attachment" "app" {
+  count            = var.instance_count
+  target_group_arn = aws_lb_target_group.app.arn
+  target_id        = aws_instance.app[count.index].id
+  port             = 80
 }
