@@ -45,3 +45,9 @@ variable "cloudfront_certificate_arn" {
   type        = string
   default     = "arn:aws:acm:us-east-1:905846953702:certificate/d1d52c2f-e849-4783-9bc9-280519dcf2f6"
 }
+
+variable "vpc_cidr" {
+  description = "CIDR block for the VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
