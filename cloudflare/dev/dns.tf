@@ -16,4 +16,12 @@ resource "cloudflare_record" "dev_api_smart_locker" {
   proxied = true
 }
 
+resource "cloudflare_record" "dev_vpn" {
+  zone_id = var.cloudflare_zone_id
+  name    = "dev-vpn"
+  content = var.vpn_ip
+  type    = "A"
+  ttl     = 1
+  proxied = false
+}
 
