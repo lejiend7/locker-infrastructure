@@ -3,12 +3,18 @@ resource "aws_security_group" "rds" {
   description = "Security group for RDS - allows MySQL from EC2 security group only"
   vpc_id      = aws_vpc.main.id
 
-  # Any EC2 attached to aws_security_group.app can connect, regardless of IP
   ingress {
     from_port       = 3306
     to_port         = 3306
     protocol        = "tcp"
     security_groups = [aws_security_group.app.id]
+  }
+
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr]
   }
 
   egress {
