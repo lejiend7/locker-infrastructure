@@ -71,3 +71,24 @@ resource "aws_apigatewayv2_stage" "default" {
     Environment = var.environment
   }
 }
+
+resource "aws_apigatewayv2_domain_name" "main" {
+  domain_name = var.api_domain
+
+  domain_name_configuration {
+    certificate_arn = var.api_certificate_arn
+    endpoint_type   = "REGIONAL"
+    security_policy = "TLS_1_2"
+  }
+
+  tags = {
+    Name        = var.api_domain
+    Environment = var.environment
+  }
+}
+
+resource "aws_apigatewayv2_api_mapping" "main" {
+  api_id      = aws_apigatewayv2_api.main.id
+  domain_name = aws_apigatewayv2_domain_name.main.id
+  stage       = aws_apigatewayv2_stage.default.id
+}

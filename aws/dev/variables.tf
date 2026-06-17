@@ -81,3 +81,15 @@ variable "vpn_instance_type" {
   type        = string
   default     = "t3.micro"
 }
+
+variable "api_domain" {
+  description = "Custom domain name for API Gateway"
+  type        = string
+  default     = "dev-api-smart-locker.lejiend7.com"
+}
+
+variable "api_certificate_arn" {
+  description = "ACM certificate ARN for API Gateway custom domain"
+  type        = string
+  default     = "arn:aws:acm:ap-southeast-5:905846953702:certificate/73b0bdc1-44a8-4e13-adf9-f0bed1ce3cca"
+}
