@@ -1,41 +1,43 @@
 # Cloudflare Infrastructure
 
-Manages DNS and HTTPS/SSL certificates for Locker project.
+Manages DNS records for `lejiend7.com` via Terraform. State is stored separately from the AWS workspace.
 
-## Features
-- **DNS Management**: Configure DNS records pointing to AWS CloudFront
-- **HTTPS/SSL**: Automatic SSL/TLS certificates via Cloudflare proxy
-- **DDoS Protection**: Built-in security from Cloudflare
+## DNS Records
+
+| Record | Type | Target | Proxied |
+|---|---|---|---|
+| `dev-api-smart-locker.lejiend7.com` | CNAME | API Gateway regional domain | Yes |
+| `dev-smart-locker.lejiend7.com` | CNAME | CloudFront distribution | Yes |
+| `dev-vpn.lejiend7.com` | A | VPN EC2 public IP | No |
 
 ## Setup
 
 ```bash
 cd dev
-cp terraform.tfvars.example terraform.tfvars
-# Edit with your Cloudflare API token and zone ID
-terraform init && terraform apply
+terraform init
+terraform plan
+terraform apply
 ```
 
-## Configuration
+## Variables
 
-Edit `dev/terraform.tfvars`:
-- `cloudflare_api_token`: Your Cloudflare API token
-- `cloudflare_zone_id`: Your domain's zone ID
-- `domain`: Your domain name
+| Variable | Description |
+|---|---|
+| `cloudflare_api_token` | Cloudflare API token (Edit zone DNS permission) |
+| `cloudflare_zone_id` | Zone ID for lejiend7.com |
+| `api_gateway_domain` | API Gateway regional domain — get from `cd aws/dev && terraform output api_gateway_regional_domain_name` |
+| `cloudfront_domain` | CloudFront domain — get from `cd aws/dev && terraform output cloudfront_domain_name` |
+| `vpn_ip` | VPN EC2 public IP — get from `cd aws/dev && terraform output vpn_public_ip` |
 
-## Adding DNS Records
+## Updating cross-workspace values
 
-Edit `dev/dns.tf` and add records pointing to CloudFront:
+Since AWS and Cloudflare states are separate, copy values manually after an AWS apply:
 
-```hcl
-resource "cloudflare_record" "website" {
-  zone_id = var.cloudflare_zone_id
-  name    = "@"
-  value   = "d123abc.cloudfront.net"
-  type    = "CNAME"
-  ttl     = 3600
-  proxied = true  # Enable Cloudflare proxy for HTTPS
-}
+```bash
+cd aws/dev
+terraform output api_gateway_regional_domain_name  # → api_gateway_domain
+terraform output cloudfront_domain_name            # → cloudfront_domain
+terraform output vpn_public_ip                     # → vpn_ip
 ```
 
-See [Cloudflare Terraform Provider Docs](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs) for more record types.
+Paste into `cloudflare/dev/terraform.tfvars`, then run `terraform apply`.
