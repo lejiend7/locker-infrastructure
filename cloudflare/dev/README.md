@@ -1,36 +1,8 @@
-# Cloudflare DNS - Terraform
+# Cloudflare Dev
 
-Manages DNS records for lejiend7.com domain.
+Terraform workspace for the `dev` environment DNS records.
 
-## Setup
-
-### 1. Get Cloudflare Credentials
-
-**API Token:**
-- Go to: https://dash.cloudflare.com/profile/api-tokens
-- Click "Create Token"
-- Use template: "Edit zone DNS"
-- Copy token
-
-**Zone ID:**
-- Go to: https://dash.cloudflare.com
-- Select domain: lejiend7.com
-- Right sidebar shows "Zone ID"
-- Copy it
-
-### 2. Add to terraform.tfvars
-
-```bash
-vim terraform.tfvars
-```
-
-Replace values:
-```hcl
-cloudflare_api_token = "paste-your-token-here"
-cloudflare_zone_id   = "paste-your-zone-id-here"
-```
-
-### 3. Apply
+## Apply
 
 ```bash
 terraform init
@@ -38,20 +10,15 @@ terraform plan
 terraform apply
 ```
 
-## DNS Records Created
+## Credentials
 
-- `locker.lejiend7.com` → CloudFront (de7bsautsq6ez.cloudfront.net)
-- `dev-smart-locker.lejiend7.com` → Backend (xxx.bbb.com)
+Get from Cloudflare dashboard:
+- **API Token**: dash.cloudflare.com → Profile → API Tokens → Create Token → "Edit zone DNS"
+- **Zone ID**: dash.cloudflare.com → select `lejiend7.com` → right sidebar
 
-Both use Cloudflare proxy for HTTPS.
+Add to `terraform.tfvars`:
 
-## Update Backend Domain
-
-Edit `variables.tf` default value:
 ```hcl
-variable "smart_locker_backend_domain" {
-  default = "your-new-domain.com"
-}
+cloudflare_api_token = "your-token"
+cloudflare_zone_id   = "your-zone-id"
 ```
-
-Then: `terraform apply`
